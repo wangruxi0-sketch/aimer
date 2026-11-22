@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     ❤ Pour toi, mon amour —— 送给你爱的她的法语爱心网站 ❤
+     ------------------------------------------------------------
+     【这个文件怎么用】
+     1. 用浏览器（Chrome/Edge）双击打开就能看效果
+     2. 想改内容：用记事本（或 VS Code）打开本文件，搜索下面的
+        "★★★ 自定义区 ★★★"，改完保存、刷新浏览器即可
+     3. 想改颜色：搜索 ":root"（第 60 行附近），那里集中放了
+        所有颜色变量，只改那里就能整站换色
+     4. 各板块的中文/法语文案，直接在 <body> 区域搜索对应文字替换
+     ============================================================ -->
+<html lang="fr">
+<head>
+<!-- charset=UTF-8：保证中文、法文的特殊字符（é、我爱你）都正常显示 -->
+<meta charset="UTF-8">
+<!-- viewport：让页面在手机上自动缩放适配（她会用手机打开，这行很重要） -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- 浏览器标签页上显示的标题 -->
+<title>Pour toi, mon amour ❤</title>
+
+<!-- Google Fonts：从网上加载两个优雅的英/法文手写字体。
+     断网时会自动退回到本机字体，页面照样能看 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Dancing+Script:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+  /* ==========================================================
+     一、全局颜色变量（想整站换色只需要改这里！）
+        --rose 是粉色主色、--gold 是金色、--bg1/bg2 是深夜紫背景
+        可以把这些色值换成她喜欢的颜色，例如粉色换成淡紫 #b8a9d9
+     ========================================================== */
+  :root {
+    --bg1: #1b1226;        /* 页面最底部的深色 */
+    --bg2: #2d1b33;        /* 页面上部的紫色 */
+    --rose: #ff6b8a;       /* 主粉色（爱心、强调） */
+    --rose-soft: #ffb3c1;  /* 柔和粉（标题强调字） */
+    --gold: #e8c47c;       /* 金色（计时器数字、小标签） */
+    --cream: #fff5ec;      /* 奶油白（正文字色） */
+    --muted: #b9a7c9;      /* 淡紫灰（次要说明文字） */
+  }
+
+  /* ---- 基础重置：清掉浏览器默认的边距，统一盒模型 ---- */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  /* 点击导航/锚点时平滑滚动（下滑页面时更优雅） */
+  html { scroll-behavior: smooth; }
+
+  body {
+    /* 正文默认字体：Playfair Display（优雅衬线）+ 系统备选字体 */
+    font-family: "Playfair Display", Georgia, "STZhongsong", serif;
+    /* 背景：一个巨大的径向渐变（右上角稍亮，向下渐深） */
+    background: radial-gradient(1200px 800px at 70% -10%, #3d2242 0%, var(--bg2) 45%, var(--bg1) 100%);
+    color: var(--cream);
+    min-height: 100vh;
+    overflow-x: hidden;   /* 禁止左右滚动，防止小爱心飞出屏幕时出滚动条 */
+  }
+
+  /* ==========================================================
+     二、开场封面（全屏遮罩，点击后淡出消失）
+     ========================================================== */
+  #cover {
+    position: fixed; inset: 0; z-index: 100;   /* 固定铺满全屏、盖在最上层 */
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(900px 600px at 50% 30%, #3a2140, var(--bg1) 75%);
+    cursor: pointer; text-align: center; padding: 24px;
+    transition: opacity 1s, visibility 1s;      /* 点击后 1 秒淡出 */
+  }
+  #cover.open { opacity: 0; visibility: hidden; }  /* 加上 .open 类 = 淡出并不可点击 */
+  /* 封面那颗跳动的大爱心：字体大小 84px，无限循环 beat 动画 */
+  #cover .envelope-heart { font-size: 84px; animation: beat 1.3s infinite; filter: drop-shadow(0 0 30px rgba(255,107,138,.55)); }
+  #cover h1 { font-size: clamp(28px, 6vw, 44px); margin-top: 26px; font-weight: 500; letter-spacing: 1px; } /* clamp=手机小/电脑大，自适应字号 */
+  #cover p { margin-top: 14px; color: var(--muted); font-style: italic; font-size: 17px; }
+  /* "clique pour ouvrir" 一闪一闪提示可点击 */
+  #cover .tap { margin-top: 42px; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--rose-soft); animation: glow 2s infinite; }
+
+  /* ---- 两个核心动画 ---- */
+  /* beat：心跳节奏（缩放两次一下，模拟真实心跳） */
+  @keyframes beat { 0%,100% { transform: scale(1); } 25% { transform: scale(1.22); } 40% { transform: scale(1); } 60% { transform: scale(1.15); } }
+  /* glow：呼吸式明暗闪烁 */
+  @keyframes glow { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
+
+  /* ==========================================================
+     三、主体内容区（封面点开后才显示）
+     ========================================================== */
+  main { display: none; }          /* 默认隐藏 */
+  main.show { display: block; }    /* 点开封面后由 JS 加上 .show */
+  /* 每个 section（板块）的通用排版：居中、限宽 880px */
+  section { max-width: 880px; margin: 0 auto; padding: 72px 22px; text-align: center; position: relative; }
+
+  /* 板块小标签：金色大写字距拉宽（如 "POUR TOI"） */
+  .kicker { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 18px; }
+  /* 板块大标题，em（斜体强调）用柔和粉 */
+  h2 { font-size: clamp(26px, 5vw, 38px); font-weight: 500; margin-bottom: 22px; }
+  h2 em { color: var(--rose-soft); }
+  /* .hand = 手写体（Dancing Script） */
+  .hand { font-family: "Dancing Script", cursive; }
+
+  /* ---- 3.1 开场板块：占满一屏，内容垂直居中 ---- */
+  #hero { min-height: 88vh; display: flex; flex-direction: column; justify-content: center; }
+  /* 她的名字：大号 + 粉→金 渐变文字（渐变文字需要3行配合：背景裁剪+文字透明） */
+  #hero .name { font-size: clamp(34px, 8vw, 58px); font-weight: 700; background: linear-gradient(90deg, var(--rose-soft), var(--gold)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  /* 打字机那一行：min-height 防止换行时页面跳动 */
+  #typewriter { margin-top: 26px; min-height: 60px; font-size: clamp(17px, 3.4vw, 22px); font-style: italic; color: var(--cream); }
+  #typewriter .caret { color: var(--rose); animation: glow 1s infinite; }  /* 闪烁光标 "|" */
+  /* 底部 "↓ descends ↓" 上下浮动提示下滑 */
+  .scroll-hint { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: 13px; letter-spacing: 2px; animation: floaty 2.2s infinite; }
+  @keyframes floaty { 0%,100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
+
+  /* ---- 3.2 恋爱计时器卡片 ---- */
+  .counter-box {
+    border: 1px solid rgba(232,196,124,.35);      /* 金色细边框 */
+    background: rgba(255,255,255,.04);            /* 很淡的白色磨砂底 */
+    border-radius: 20px;
+    padding: 34px 20px 30px;
+    max-width: 640px; margin: 10px auto 0;
+  }
+  .counter-box .big-days { font-size: clamp(56px, 12vw, 92px); font-weight: 700; color: var(--gold); line-height: 1; }  /* 巨大的天数数字 */
+  .counter-box .unit { color: var(--muted); font-style: italic; margin-top: 6px; font-size: 17px; }
+  /* 时:分:秒 一行；tabular-nums = 等宽数字，跳动时不会抖 */
+  .hms { margin-top: 18px; font-size: 19px; color: var(--rose-soft); letter-spacing: 2px; font-variant-numeric: tabular-nums; }
+  .since-note { margin-top: 18px; font-size: 15px; color: var(--muted); }
+  .since-note b { color: var(--cream); }
+
+  /* ---- 3.3 翻牌卡片网格（爱她的理由） ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));  /* 自动换列：宽屏4列，手机2列 */
+    gap: 16px; margin-top: 34px;
+  }
+  /* 翻牌原理：外层给"透视"视角，内层 .inner 做旋转，两面 .face 背对背 */
+  .card3d { perspective: 900px; height: 170px; cursor: pointer; }
+  .card3d .inner {
+    position: relative; width: 100%; height: 100%;
+    transform-style: preserve-3d;               /* 让子元素保持3D空间 */
+    transition: transform .7s cubic-bezier(.4,.1,.2,1);  /* 翻转动画时长（想翻快改 .7s） */
+  }
+  .card3d.flipped .inner { transform: rotateY(180deg); }  /* 加 .flipped 类 = 翻到背面 */
+  .face {
+    position: absolute; inset: 0; backface-visibility: hidden;  /* 背对屏幕时隐藏 */
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    padding: 16px; text-align: center;
+  }
+  .face.front {   /* 正面：爱心/花朵图标 + 淡粉渐变底 */
+    background: linear-gradient(145deg, rgba(255,107,138,.16), rgba(232,196,124,.10));
+    border: 1px solid rgba(255,179,193,.28);
+    font-size: 40px;
+  }
+  .face.back {    /* 背面：理由文字，预先整体转 180 度 */
+    transform: rotateY(180deg);
+    background: linear-gradient(145deg, rgba(255,107,138,.30), rgba(232,196,124,.18));
+    border: 1px solid rgba(255,179,193,.45);
+    font-size: 15.5px; line-height: 1.55; color: var(--cream);
+    font-style: italic;
+  }
+  .flip-tip { color: var(--muted); font-size: 14px; margin-top: 20px; }
+
+  /* ---- 3.4 大爱心按钮 ---- */
+  #big-heart {
+    font-size: 96px; background: none; border: none; cursor: pointer;
+    animation: beat 1.4s infinite;       /* 持续跳动 */
+    user-select: none;                   /* 防止连点选中文字 */
+    filter: drop-shadow(0 0 26px rgba(255,107,138,.6));  /* 爱心光晕 */
+    transition: transform .15s;
+  }
+  #big-heart:active { transform: scale(.86); }   /* 按下瞬间缩小，手感反馈 */
+  /* 按钮下方那句甜言蜜语（手写体大字） */
+  #heart-message {
+    margin-top: 22px; min-height: 56px;
+    font-family: "Dancing Script", cursive;
+    font-size: clamp(22px, 5vw, 30px); color: var(--rose-soft);
+  }
+  .heart-count { margin-top: 10px; color: var(--muted); font-size: 14px; letter-spacing: 2px; }
+
+  /* ---- 3.5 中文小课堂（虚线金框卡片） ---- */
+  .zh-lesson {
+    max-width: 560px; margin: 0 auto;
+    border: 1px dashed rgba(232,196,124,.5);
+    border-radius: 18px; padding: 34px 26px;
+    background: rgba(232,196,124,.05);
+  }
+  .zh-word { font-size: clamp(40px, 9vw, 58px); letter-spacing: 6px; margin: 8px 0 4px; }     /* 中文大字 */
+  .zh-pinyin { color: var(--gold); font-style: italic; letter-spacing: 2px; margin-bottom: 12px; }  /* 拼音 */
+  .zh-meaning { color: var(--muted); font-size: 15px; }                                       /* 法语解释 */
+  .zh-lesson .row { margin-top: 26px; }
+  .zh-lesson .row:first-of-type { margin-top: 0; }
+
+  /* ---- 3.6 结尾大字 "Je t'aime"：流光渐变动画 ---- */
+  #finale .je-taime {
+    font-size: clamp(46px, 11vw, 88px); font-weight: 700; letter-spacing: 3px;
+    background: linear-gradient(90deg, #ff8fa3, #ffd6a5, #ff8fa3);
+    background-size: 200% auto;              /* 渐变拉宽一倍，才能"流动" */
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    animation: shine 4s linear infinite;     /* 4秒循环流动，想快改小数字 */
+  }
+  @keyframes shine { to { background-position: 200% center; } }
+  #finale .sig { margin-top: 30px; font-size: 18px; color: var(--muted); font-style: italic; }
+  #finale .cheer { margin-top: 40px; font-size: 16.5px; line-height: 2; color: var(--cream); opacity: .92; }
+
+  footer { text-align: center; padding: 30px 20px 46px; color: rgba(185,167,201,.55); font-size: 12.5px; letter-spacing: 1px; }
+
+  /* ---- 3.7 飘浮小爱心（JS 动态生成，飞完自动删除） ---- */
+  .fly-heart {
+    position: fixed; z-index: 90; pointer-events: none;   /* 不挡住鼠标点击 */
+    animation: fly var(--d, 2.6s) ease-out forwards;      /* 时长由 JS 通过 --d 变量传入 */
+    will-change: transform, opacity;
+  }
+  /* 从原地向上飘 260px，左右随机偏移(--dx)、旋转(--r)、渐隐 */
+  @keyframes fly {
+    0%   { transform: translate(0,0) scale(var(--s,1)) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--dx,0px), -260px) scale(var(--s,1)) rotate(var(--r,20deg)); opacity: 0; }
+  }
+
+  /* ---- 3.8 手机端适配：小屏幕时缩小边距、翻牌固定 2 列 ---- */
+  @media (max-width: 480px) {
+    section { padding: 56px 16px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==========================================================
+     页面结构总览（从上到下的 6 个板块）：
+       ① 封面 #cover      —— 点击打开的惊喜序幕
+       ② #hero            —— 她的名字 + 打字机情话
+       ③ 计时器板块        —— 在一起多少天（实时跳动）
+       ④ 翻牌板块          —— 12 个爱她的理由
+       ⑤ 大爱心板块        —— 点击哄她开心
+       ⑥ 中文小课堂        —— 教她三个中文词
+       ⑦ #finale 结尾     —— 大字 Je t'aime + 落款
+     ========================================================== -->
+
+<!-- ① 封面：整块都是可点击的，点击后由 JS 淡出 -->
+<div id="cover">
+  <div class="envelope-heart">❤️</div>
+  <h1>J'ai quelque chose pour toi…</h1>          <!-- "我为你准备了一个东西…" -->
+  <p>Une petite page, faite avec tout mon cœur</p> <!-- "一个小页面，用我的全部心意做的" -->
+  <div class="tap">— clique pour ouvrir —</div>    <!-- "点击打开" -->
+</div>
+
+<main id="content">
+
+  <!-- ② 开场：她的名字（由 JS 从 CONFIG 读入）+ 打字机 -->
+  <section id="hero">
+    <div class="kicker">Pour toi</div>
+    <div class="name" id="herName">Mon amour</div>
+    <div id="typewriter"><span id="tw-text"></span><span class="caret">|</span></div>
+    <div class="scroll-hint">↓ descends ↓</div>   <!-- "往下滑" -->
+  </section>
+
+  <!-- ③ 恋爱计时器：数字由 JS 每秒刷新 -->
+  <section>
+    <div class="kicker">Notre histoire</div>
+    <h2>Depuis le premier jour <em>ensemble</em></h2>  <!-- "从我们在一起的第一天起" -->
+    <div class="counter-box">
+      <div class="big-days" id="days">—</div>          <!-- 天数 -->
+      <div class="unit">jours d'amour</div>            <!-- "天的爱" -->
+      <div class="hms" id="hms">00 h 00 min 00 s</div> <!-- 时分秒 -->
+      <div class="since-note">…et je t'aime un peu plus <b>chaque jour</b> ♥</div> <!-- "而且每天都更爱你一点" -->
+    </div>
+  </section>
+
+  <!-- ④ 翻牌：卡片由 JS 根据 REASONS 数组自动生成，改文案去下面的 JS 区 -->
+  <section>
+    <div class="kicker">Raison par raison</div>
+    <h2>Pourquoi je t'aime, <em>toi</em></h2>          <!-- "为什么我爱的是你" -->
+    <div class="grid" id="reasons"></div>
+    <div class="flip-tip">✦ touche une carte pour la retourner ✦</div> <!-- "点卡片翻开" -->
+  </section>
+
+  <!-- ⑤ 大爱心哄她开心 -->
+  <section>
+    <div class="kicker">Quand tu es triste</div>       <!-- "当你难过的时候" -->
+    <h2>Appuie sur mon cœur <em>❤</em></h2>            <!-- "按住我的心" -->
+    <button id="big-heart">❤️</button>
+    <div id="heart-message">Chaque clic est un câlin de ma part…</div> <!-- "每次点击都是我的一个拥抱" -->
+    <div class="heart-count" id="heart-count"></div>   <!-- 拥抱计数 -->
+  </section>
+
+  <!-- ⑥ 中文小课堂：直接改下面的中文/拼音/法语解释即可 -->
+  <section>
+    <div class="kicker">Petit cours de chinois</div>
+    <h2>Apprends trois mots, <em>juste pour moi</em></h2>
+    <div class="zh-lesson">
+      <div class="row">
+        <div class="zh-word">我爱你</div>
+        <div class="zh-pinyin">wǒ ài nǐ</div>
+        <div class="zh-meaning">= « Je t'aime » — la phrase que je te dis le plus</div>
+      </div>
+      <div class="row">
+        <div class="zh-word">宝贝</div>
+        <div class="zh-pinyin">bǎobèi</div>
+        <div class="zh-meaning">= « bébé / trésor » — c'est comme ça que je t'appelle</div>
+      </div>
+      <div class="row">
+        <div class="zh-word">永远</div>
+        <div class="zh-pinyin">yǒngyuǎn</div>
+        <div class="zh-meaning">= « pour toujours » — c'est comme ça que je t'aime</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ⑦ 结尾：哄人的暖心话在这里改 -->
+  <section id="finale">
+    <div class="je-taime">Je t'aime</div>
+    <div class="hand" style="font-size:26px;color:var(--rose-soft);margin-top:10px">hier, aujourd'hui, demain, et tous les jours après</div> <!-- 昨天、今天、明天，以及之后的每一天 -->
+    <p class="cheer">
+      <!-- 中文对照：灰色的日子终会过去，而我会一直在你身边。
+           永远记住：你是我生命中最美好的事。 -->
+      Même les jours gris finissent par passer, mon amour.<br>
+      Et pendant qu'ils passent, je serai à tes côtés — toujours.<br>
+      Ne l'oublie jamais : <b>tu es la plus belle chose de ma vie.</b>
+    </p>
+    <div class="sig" id="signature">— Ton amoureux, de Chine avec amour ❤</div> <!-- 落款，JS 会用 CONFIG 覆盖 -->
+  </section>
+
+  <footer>fait avec ❤ uniquement pour une seule personne</footer> <!-- "只为一个人而做" -->
+</main>
+
+<script>
+/* ============================================================
+   ★★★ 自定义区：改这三行就能变成你的专属网站 ★★★
+   改完保存（Ctrl+S），回到浏览器刷新（F5）即可生效
+   ============================================================ */
+const CONFIG = {
+  // 她的名字/昵称：例如 "Ma Élise"、"Ma puce"（法语"小宝贝"）
+  herName:   "Mon amour",
+  // 你们在一起的日期时间：格式 年-月-日T时:分:秒（注意用横线和字母T）
+  startDate: "2024-06-01T00:00:00",
+  // 结尾落款：署上你的名字更有感觉
+  signature: "— Ton amoureux, de Chine avec amour ❤",
+};
+
+/* 爱她的理由（翻牌背面的文字）——改成你俩的专属回忆最感人！
+   想加几条加几条（卡片会自动生成）；记得每条用引号包住、逗号结尾 */
+const REASONS = [
+  "Parce que ton sourire illumine mes journées les plus grisâtres.",  // 因为你的微笑照亮我最灰暗的日子
+  "Parce que ton rire est ma mélodie préférée au monde.",             // 因为你的笑声是世界上最美的旋律
+  "Parce que tu es belle, même quand tu viens de te réveiller.",      // 因为即使刚睡醒你也那么美
+  "Parce que tu supportes mes blagues nulles… et parfois tu ris.",    // 因为你受得了我烂的笑话…有时还会笑
+  "Parce que tu es la plus gentille personne que je connaisse.",      // 因为你是我认识的最善良的人
+  "Parce que tes câlins réparent toutes mes mauvaises journées.",     // 因为你的拥抱能治愈我所有糟糕的一天
+  "Parce qu'avec toi, même le silence est doux.",                     // 因为和你在一起，连沉默都温柔
+  "Parce que tu m'inspires à devenir une meilleure personne.",        // 因为你激励我成为更好的人
+  "Parce que tu as fait de moi quelqu'un de plus heureux.",           // 因为你让我变得更幸福
+  "Parce que je me sens chez moi quand je suis avec toi.",            // 因为和你在一起就像回到了家
+  "Parce que tu m'appelles quand je te manque… et ça me fond.",       // 因为你想我时会打给我…这让我心都化了
+  "Parce que tu es toi, tout simplement. ♥",                          // 因为你就是你，就这么简单
+];
+
+/* 点大爱心时随机弹出的一句甜言蜜语（同样可自由增删改） */
+const HEART_MESSAGES = [
+  "Tu es magnifique aujourd'hui. Comme tous les jours.",   // 你今天真美，像每一天一样
+  "Je pense à toi, là, maintenant.",                       // 此时此刻，我在想你
+  "Ne sois plus triste, je suis là. ♥",                    // 别难过，我在
+  "Tu es plus forte que tu ne le crois.",                  // 你比自己以为的更坚强
+  "Quelqu'un t'aime très, très fort — devine qui ?",       // 有个人非常非常爱你——猜是谁？
+  "Quand tu souris, le monde entier s'illumine.",          // 你微笑时，整个世界都亮了
+  "Un jour, je t'ai rencontrée. Depuis, tout a changé.",   // 那天遇见你之后，一切都变了
+  "Tu me manques déjà, même si on vient de se parler.",    // 我们刚聊完，我已经想你了
+  "Merci d'exister, mon amour.",                           // 谢谢你的存在，我的爱
+  "À tes côtés, je suis chez moi.",                        // 在你身边，我就是在家
+  "Même les étoiles sont jalouses de toi ce soir.",        // 今晚连星星都嫉妒你
+  "Je t'aime plus qu'hier, moins que demain.",             // 我爱你，比昨天多，比明天少
+];
+/* ============================================================
+   ★★★ 自定义区结束！下面是功能代码，看懂了可以随意玩 ★★★
+   ============================================================ */
+
+// 小工具：$ = document.querySelector 的简写，$("#id") 就是"找到这个元素"
+const $ = (s) => document.querySelector(s);
+
+/* ---------- 1. 封面点击：淡出封面、显示主体、开始打字机 ----------
+   { once: true } 表示这个事件只触发一次，防止重复执行 */
+$("#cover").addEventListener("click", () => {
+  $("#cover").classList.add("open");        // 封面淡出
+  $("#content").classList.add("show");      // 主体显示
+  startTypewriter();                        // 开始打字机效果
+  burstHearts(window.innerWidth / 2, window.innerHeight / 2, 26);  // 屏幕中央炸一波爱心
+}, { once: true });
+
+// 把 CONFIG 里配置的名字和落款，填进页面对应位置
+$("#herName").textContent = CONFIG.herName;
+$("#signature").textContent = CONFIG.signature;
+
+/* ---------- 2. 打字机效果 ----------
+   原理：每隔几十毫秒多显示一个字，打完一句停 2.2 秒，再逐字删除，循环下一句
+   想改速度：65 = 打字速度(毫秒/字)，28 = 删除速度，2200 = 停顿时长 */
+const PHRASES = [
+  "Tu es la plus belle histoire de ma vie.",  // 你是我生命中最美的故事
+  "Avec toi, tout est plus beau.",            // 有你在，一切都更美
+  "Merci d'exister, mon amour.",              // 谢谢你的存在，我的爱
+  "Chaque jour avec toi est un cadeau.",      // 和你的每一天都是礼物
+  "Je t'aime, hier, aujourd'hui, demain.",    // 我爱你，昨天、今天、明天
+];
+function startTypewriter() {
+  let pi = 0, ci = 0, deleting = false;   // pi=第几句，ci=打到第几个字
+  const el = $("#tw-text");
+  (function tick() {                      // 自循环函数：每次改一个字后约定下次时间
+    const p = PHRASES[pi];
+    el.textContent = p.slice(0, ci);      // 只显示前 ci 个字符
+    if (!deleting) {
+      ci++;                               // 打字阶段：字数+1
+      if (ci > p.length) { deleting = true; return setTimeout(tick, 2200); } // 打完整句→停顿
+      setTimeout(tick, 65);
+    } else {
+      ci--;                               // 删除阶段：字数-1
+      if (ci === 0) { deleting = false; pi = (pi + 1) % PHRASES.length; }    // 删完→换下一句
+      setTimeout(tick, 28);
+    }
+  })();
+}
+
+/* ---------- 3. 恋爱计时器 ----------
+   原理：取"现在 - 开始日期"的毫秒差，换算成 天/时/分/秒 写进页面，
+   之后 setInterval 每 1000 毫秒（1秒）刷新一次 */
+function tickCounter() {
+  const start = new Date(CONFIG.startDate).getTime();  // 配置的起始日期→时间戳
+  const diff = Date.now() - start;                     // 现在和它的差值（毫秒）
+  if (diff < 0) { $("#days").textContent = "∞"; return; }  // 日期在未来就显示无穷大
+  const d = Math.floor(diff / 86400000);               // 86400000ms = 1天
+  const h = Math.floor(diff / 3600000) % 24;           // 3600000ms = 1小时，%24 取余
+  const m = Math.floor(diff / 60000) % 60;             // 60000ms = 1分钟
+  const s = Math.floor(diff / 1000) % 60;              // 1000ms = 1秒
+  $("#days").textContent = d;
+  // padStart(2,"0") = 不足两位补零，比如 5 → "05"
+  $("#hms").textContent =
+    String(h).padStart(2, "0") + " h " +
+    String(m).padStart(2, "0") + " min " +
+    String(s).padStart(2, "0") + " s";
+}
+tickCounter(); setInterval(tickCounter, 1000);  // 立刻执行一次 + 每秒刷新
+
+/* ---------- 4. 翻牌卡片 ----------
+   原理：JS 根据 REASONS 数组批量生成卡片（改数组就自动增减卡片），
+   点击卡片给它"翻转"类 flip，CSS 收到后自动播放翻转动画 */
+const grid = $("#reasons");
+REASONS.forEach((r, i) => {
+  const c = document.createElement("div");   // 新建一张卡
+  c.className = "card3d";
+  // 正面放一个循环使用的可爱图标，背面放理由文字
+  c.innerHTML = `<div class="inner">
+      <div class="face front">${["❤", "✿", "★", "❀", "☼"][i % 5]}</div>
+      <div class="face back">${r}</div>
+    </div>`;
+  c.addEventListener("click", () => {
+    c.classList.toggle("flipped");           // 切换翻转（再点一下会翻回来）
+    // 翻开时在卡片附近炸 5 颗小爱心助兴
+    burstHearts(c.getBoundingClientRect().left + 90, c.getBoundingClientRect().top + 60, 5);
+  });
+  grid.appendChild(c);                       // 放进网格
+});
+
+/* ---------- 5. 大爱心按钮 ----------
+   每点一次：① 炸爱心 ② 换一句随机甜话（保证不连续重复）③ 累计拥抱数 */
+let clicks = 0, msgIdx = -1;
+$("#big-heart").addEventListener("click", (e) => {
+  clicks++;
+  // getBoundingClientRect() = 拿到按钮在屏幕上的位置，让爱心从按钮处炸开
+  const rect = e.target.getBoundingClientRect();
+  burstHearts(rect.left + rect.width / 2, rect.top, 16);
+  // 随机取一句，如果和上一句相同就重取（do...while 循环）
+  let next;
+  do { next = Math.floor(Math.random() * HEART_MESSAGES.length); } while (next === msgIdx);
+  msgIdx = next;
+  const msgEl = $("#heart-message");
+  msgEl.style.opacity = 0;                   // 先淡出
+  setTimeout(() => { msgEl.textContent = HEART_MESSAGES[msgIdx]; msgEl.style.opacity = 1; }, 200);  // 200ms后换字再淡入
+  // 点满 3 次开始显示"已送出 X 个拥抱"
+  $("#heart-count").textContent = clicks >= 3 ? clicks + " câlins envoyés ♥" : "";
+});
+$("#heart-message").style.transition = "opacity .2s";  // 给甜话加淡入淡出过渡
+
+/* ---------- 6. 飘浮小爱心（全场通用特效） ----------
+   原理：造一个带 .fly-heart 类的元素丢到页面上，CSS 动画自动让它
+   向上飘+旋转+渐隐；3.2 秒后用 remove() 把它删掉，不占内存。
+   想改爱心样式/飞行高度：改上面 CSS 的 @keyframes fly 和这里的数字 */
+function burstHearts(x, y, n = 10) {
+  const glyphs = ["❤", "💖", "💗", "✨", "💕"];          // 随机挑一个图案
+  for (let i = 0; i < n; i++) {
+    const h = document.createElement("div");
+    h.className = "fly-heart";
+    h.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+    const size = 14 + Math.random() * 20;                // 随机大小 14~34px
+    // cssText 一次性写好所有随机样式：位置、颜色、左右偏移(--dx)、
+    // 飞行时长(--d)、缩放(--s)、旋转角度(--r)，都带一点随机，更自然
+    h.style.cssText = `left:${x - size / 2 + (Math.random() * 90 - 45)}px; top:${y - size / 2}px;
+      font-size:${size}px; color:hsl(${335 + Math.random() * 25},90%,${70 + Math.random() * 15}%);
+      --dx:${Math.random() * 160 - 80}px; --d:${1.6 + Math.random() * 1.4}s;
+      --s:${.6 + Math.random() * .8}; --r:${Math.random() * 60 - 30}deg;`;
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 3200);                  // 飞完删除
+  }
+}
+
+/* ---------- 7. 点击页面任意空白处，也冒 4 颗小爱心 ----------
+   e.target.closest() 判断点的是不是链接/封面，是就跳过不冒爱心 */
+document.addEventListener("click", (e) => {
+  if (e.target.closest("a") || e.target.closest("#cover")) return;
+  burstHearts(e.clientX, e.clientY, 4);
+});
+</script>
+</body>
+</html>
